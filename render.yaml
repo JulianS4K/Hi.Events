@@ -7,9 +7,9 @@
 services:
   - type: web
     name: hi-events
-    runtime: docker
-    dockerfilePath: ./backend/Dockerfile
-    dockerContext: ./backend
+    runtime: image
+    image:
+      url: docker.io/ghcr.io/hieventsdev/hi.events-all-in-one:latest
     plan: free
     envVars:
       - key: APP_KEY
@@ -19,7 +19,9 @@ services:
       - key: APP_ENV
         value: production
       - key: APP_URL
-        sync: false
+        value: https://hi-events-p5hr.onrender.com
+      - key: APP_FRONTEND_URL
+        value: https://hi-events-p5hr.onrender.com
       - key: LOG_CHANNEL
         value: stderr
       - key: DB_CONNECTION
