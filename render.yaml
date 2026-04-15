@@ -13,11 +13,15 @@ services:
     plan: free
     envVars:
       - key: APP_KEY
-        value: base64:Y2xhdWRlLWhpLWV2ZW50cy10ZXN0LWtleS0xMjM0NTY3OA==
+        value: base64:Y2xhdWRlLWhpZXZlbnRzLWxvY2FsLWtleS0xMjM0NTY3ODkwMTIzNDU=
       - key: JWT_SECRET
         value: claude-hi-events-local-test-jwt-secret-2026
       - key: APP_ENV
         value: production
+      - key: APP_URL
+        sync: false
+      - key: LOG_CHANNEL
+        value: stderr
       - key: DB_CONNECTION
         value: pgsql
       - fromDatabase:
