@@ -23,7 +23,6 @@ RUN chmod -R 755 storage  \
 RUN composer install \
     --ignore-platform-reqs \
     --no-interaction \
-    --no-dev \
     --optimize-autoloader \
     --prefer-dist
 
