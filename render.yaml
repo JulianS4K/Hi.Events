@@ -1,0 +1,26 @@
+﻿databases:
+  - name: hi-events-db
+    databaseName: hievents
+    user: hievents
+    plan: free
+
+services:
+  - type: web
+    name: hi-events
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    envVars:
+      - key: APP_KEY
+        value: base64:Y2xhdWRlLWhpLWV2ZW50cy10ZXN0LWtleS0xMjM0NTY3OA==
+      - key: JWT_SECRET
+        value: claude-hi-events-local-test-jwt-secret-2026
+      - key: APP_ENV
+        value: production
+      - key: DB_CONNECTION
+        value: pgsql
+      - fromDatabase:
+          name: hi-events-db
+          property: connectionString
+        key: DATABASE_URL
