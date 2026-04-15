@@ -101,6 +101,7 @@ class UpdateEventSettingsRequest extends BaseRequest
 
             // Self-service settings
             'allow_attendee_self_edit' => ['boolean'],
+            'qr_rotation_enabled'      => ['boolean'],
 
             // Waitlist settings
             'waitlist_auto_process' => ['boolean'],

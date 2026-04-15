@@ -16,6 +16,7 @@ import {
     IconMenuOrder,
     IconPrinter,
     IconSend,
+    IconSwitch2,
     IconTicket,
     IconUser
 } from "@tabler/icons-react";
@@ -40,11 +41,13 @@ import {InlineOrderSummary} from "../../../common/InlineOrderSummary";
 import {CheckoutContent} from "../../../layouts/Checkout/CheckoutContent";
 import {EditAttendeeModal} from "./EditAttendeeModal";
 import {EditOrderModal} from "./EditOrderModal";
+import {TransferTicketModal} from "./TransferTicketModal";
 
 import {useEditAttendeePublic} from "../../../../mutations/useEditAttendeePublic";
 import {useEditOrderPublic} from "../../../../mutations/useEditOrderPublic";
 import {useResendAttendeeTicketPublic} from "../../../../mutations/useResendAttendeeTicketPublic";
 import {useResendOrderConfirmationPublic} from "../../../../mutations/useResendOrderConfirmationPublic";
+import {useTransferTicket} from "../../../../mutations/useTransferTicket";
 
 import {Attendee, Event, Order, Product} from "../../../../types.ts";
 import classes from './OrderSummaryAndProducts.module.scss';
@@ -79,12 +82,14 @@ const GuestListItem = ({
     allowSelfEdit,
     onEditClick,
     onResendClick,
+    onTransferClick,
 }: {
     attendee: Attendee;
     event: Event;
     allowSelfEdit: boolean;
     onEditClick: () => void;
     onResendClick: () => void;
+    onTransferClick: () => void;
 }) => {
     const productTitle = getAttendeeProductTitle(attendee, attendee.product as Product);
     const isCancelled = attendee.status === 'CANCELLED';
@@ -134,6 +139,14 @@ const GuestListItem = ({
                                 onClick={onResendClick}
                             >
                                 <IconSend size={18}/>
+                            </ActionIcon>
+                        </Tooltip>
+                        <Tooltip label={t`Transfer Ticket`}>
+                            <ActionIcon
+                                variant="subtle"
+                                onClick={onTransferClick}
+                            >
+                                <IconSwitch2 size={18}/>
                             </ActionIcon>
                         </Tooltip>
                     </>
@@ -408,6 +421,8 @@ export const OrderSummaryAndProducts = () => {
 
     const [editingAttendee, setEditingAttendee] = useState<Attendee | null>(null);
     const [editOrderModalOpened, setEditOrderModalOpened] = useState(false);
+    const [transferringAttendee, setTransferringAttendee] = useState<Attendee | null>(null);
+    const [transferSuccess, setTransferSuccess] = useState<{attendeeId: number; to: string} | null>(null);
 
     useEffect(() => {
         if (eventId && order && (order.status === 'COMPLETED' || order.status === 'AWAITING_OFFLINE_PAYMENT')) {
@@ -419,6 +434,7 @@ export const OrderSummaryAndProducts = () => {
     const editOrderMutation = useEditOrderPublic();
     const resendAttendeeTicketMutation = useResendAttendeeTicketPublic();
     const resendOrderConfirmationMutation = useResendOrderConfirmationPublic();
+    const transferTicketMutation = useTransferTicket();
 
     const allowSelfEdit = event?.settings?.allow_attendee_self_edit ?? false;
 
@@ -480,6 +496,26 @@ export const OrderSummaryAndProducts = () => {
                     } else {
                         showError(error?.response?.data?.message || t`Failed to update order`);
                     }
+                },
+            }
+        );
+    };
+
+    const handleTransferTicket = (attendee: Attendee, data: { to_identifier: string; to_identifier_type: 'email' | 'phone' }) => {
+        transferTicketMutation.mutate(
+            {
+                eventId: eventId!,
+                orderShortId: orderShortId!,
+                attendeeShortId: attendee.short_id,
+                data,
+            },
+            {
+                onSuccess: () => {
+                    setTransferSuccess({attendeeId: attendee.id, to: data.to_identifier});
+                    queryClient.invalidateQueries({queryKey: [GET_ORDER_PUBLIC_QUERY_KEY]});
+                },
+                onError: (error: any) => {
+                    showError(error?.response?.data?.message || t`Failed to transfer ticket`);
                 },
             }
         );
@@ -636,6 +672,10 @@ export const OrderSummaryAndProducts = () => {
                                         allowSelfEdit={allowSelfEdit}
                                         onEditClick={() => setEditingAttendee(attendee)}
                                         onResendClick={() => handleResendAttendeeTicket(attendee)}
+                                        onTransferClick={() => {
+                                            setTransferSuccess(null);
+                                            setTransferringAttendee(attendee);
+                                        }}
                                     />
                                 ))}
                             </div>
@@ -665,6 +705,21 @@ export const OrderSummaryAndProducts = () => {
                     onSuccess={(values: any) => {
                         handleEditOrder(values);
                     }}
+                />
+            )}
+
+            {transferringAttendee && (
+                <TransferTicketModal
+                    opened={!!transferringAttendee}
+                    onClose={() => {
+                        setTransferringAttendee(null);
+                        setTransferSuccess(null);
+                    }}
+                    attendee={transferringAttendee}
+                    isLoading={transferTicketMutation.isPending}
+                    transferred={transferSuccess?.attendeeId === transferringAttendee.id}
+                    transferredTo={transferSuccess?.to ?? ''}
+                    onSuccess={(data) => handleTransferTicket(transferringAttendee, data)}
                 />
             )}
         </>

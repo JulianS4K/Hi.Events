@@ -544,3 +544,71 @@
     break-inside: avoid;
   }
 }
+
+.qrCountdown {
+  position: absolute;
+  top: -14px;
+  right: -14px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  @media print {
+    display: none;
+  }
+}
+
+.qrCountdownRing {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  top: 0;
+  left: 0;
+}
+
+.qrCountdownLabel {
+  font-size: 8px;
+  font-weight: 600;
+  color: var(--accent);
+  z-index: 1;
+  line-height: 1;
+}
+
+.qrOfflineWarning {
+  position: absolute;
+  bottom: 4px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 9px;
+  color: #e65c00;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 2px 4px;
+
+  @media print {
+    display: none;
+  }
+}
+
+.walletButton {
+  display: inline-flex;
+  align-items: center;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 6px;
+  overflow: hidden;
+  height: 40px;
+
+  &:focus-visible {
+    outline: 2px solid var(--mantine-color-blue-5);
+    outline-offset: 2px;
+  }
+
+  @media print {
+    display: none;
+  }
+}

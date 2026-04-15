@@ -492,6 +492,11 @@ export const ProductForm = ({form, product}: ProductFormProps) => {
                                 {...form.getInputProps(`waitlist_enabled`, {type: 'checkbox'})}
                                 label={t`Enable Waitlist`}
                             />
+                            <Switch
+                                description={t`When disabled, attendees cannot transfer this ticket to another person.`}
+                                {...form.getInputProps(`is_transferable`, {type: 'checkbox'})}
+                                label={t`Allow ticket transfers`}
+                            />
                         </div>
                     </Fieldset>
 

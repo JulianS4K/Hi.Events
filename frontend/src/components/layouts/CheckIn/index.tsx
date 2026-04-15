@@ -218,14 +218,10 @@ const CheckIn = () => {
                 const {data} = await publicCheckInClient.getCheckInListAttendee(checkInListShortId, attendeePublicId);
                 attendee = data;
             } catch (error) {
-                showError(t`Unable to fetch attendee`);
-                playErrorSound();
-                isProcessingRef.current = false;
-                return;
-            }
-
-            if (!attendee) {
-                showError(t`Attendee not found`);
+                const message = error instanceof AxiosError
+                    ? error.response?.data?.message || t`Unable to fetch attendee`
+                    : t`Unable to fetch attendee`;
+                showError(message);
                 playErrorSound();
                 isProcessingRef.current = false;
                 return;

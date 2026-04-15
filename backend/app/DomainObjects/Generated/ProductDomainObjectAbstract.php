@@ -37,6 +37,7 @@ abstract class ProductDomainObjectAbstract extends \HiEvents\DomainObjects\Abstr
     final public const IS_HIGHLIGHTED = 'is_highlighted';
     final public const HIGHLIGHT_MESSAGE = 'highlight_message';
     final public const WAITLIST_ENABLED = 'waitlist_enabled';
+    final public const IS_TRANSFERABLE = 'is_transferable';
 
     protected int $id;
     protected int $event_id;
@@ -65,6 +66,7 @@ abstract class ProductDomainObjectAbstract extends \HiEvents\DomainObjects\Abstr
     protected bool $is_highlighted = false;
     protected ?string $highlight_message = null;
     protected ?bool $waitlist_enabled = null;
+    protected bool $is_transferable = true;
 
     public function toArray(): array
     {
@@ -96,6 +98,7 @@ abstract class ProductDomainObjectAbstract extends \HiEvents\DomainObjects\Abstr
                     'is_highlighted' => $this->is_highlighted ?? null,
                     'highlight_message' => $this->highlight_message ?? null,
                     'waitlist_enabled' => $this->waitlist_enabled ?? null,
+                    'is_transferable' => $this->is_transferable ?? null,
                 ];
     }
 
@@ -394,5 +397,16 @@ abstract class ProductDomainObjectAbstract extends \HiEvents\DomainObjects\Abstr
     public function getWaitlistEnabled(): ?bool
     {
         return $this->waitlist_enabled;
+    }
+
+    public function setIsTransferable(bool $is_transferable): self
+    {
+        $this->is_transferable = $is_transferable;
+        return $this;
+    }
+
+    public function getIsTransferable(): bool
+    {
+        return $this->is_transferable;
     }
 }

@@ -64,6 +64,7 @@ abstract class EventSettingDomainObjectAbstract extends \HiEvents\DomainObjects\
     final public const HOMEPAGE_THEME_SETTINGS = 'homepage_theme_settings';
     final public const PASS_PLATFORM_FEE_TO_BUYER = 'pass_platform_fee_to_buyer';
     final public const ALLOW_ATTENDEE_SELF_EDIT = 'allow_attendee_self_edit';
+    final public const QR_ROTATION_ENABLED = 'qr_rotation_enabled';
     final public const WAITLIST_ENABLED = 'waitlist_enabled';
     final public const WAITLIST_AUTO_PROCESS = 'waitlist_auto_process';
     final public const WAITLIST_OFFER_TIMEOUT_MINUTES = 'waitlist_offer_timeout_minutes';
@@ -122,6 +123,7 @@ abstract class EventSettingDomainObjectAbstract extends \HiEvents\DomainObjects\
     protected array|string|null $homepage_theme_settings = null;
     protected bool $pass_platform_fee_to_buyer = false;
     protected bool $allow_attendee_self_edit = true;
+    protected bool $qr_rotation_enabled = false;
     protected bool $waitlist_enabled = false;
     protected bool $waitlist_auto_process = false;
     protected ?int $waitlist_offer_timeout_minutes = null;
@@ -183,6 +185,7 @@ abstract class EventSettingDomainObjectAbstract extends \HiEvents\DomainObjects\
                     'homepage_theme_settings' => $this->homepage_theme_settings ?? null,
                     'pass_platform_fee_to_buyer' => $this->pass_platform_fee_to_buyer ?? null,
                     'allow_attendee_self_edit' => $this->allow_attendee_self_edit ?? null,
+                    'qr_rotation_enabled' => $this->qr_rotation_enabled ?? null,
                     'waitlist_enabled' => $this->waitlist_enabled ?? null,
                     'waitlist_auto_process' => $this->waitlist_auto_process ?? null,
                     'waitlist_offer_timeout_minutes' => $this->waitlist_offer_timeout_minutes ?? null,
@@ -782,6 +785,17 @@ abstract class EventSettingDomainObjectAbstract extends \HiEvents\DomainObjects\
     public function getAllowAttendeeSelfEdit(): bool
     {
         return $this->allow_attendee_self_edit;
+    }
+
+    public function setQrRotationEnabled(bool $qr_rotation_enabled): self
+    {
+        $this->qr_rotation_enabled = $qr_rotation_enabled;
+        return $this;
+    }
+
+    public function getQrRotationEnabled(): bool
+    {
+        return $this->qr_rotation_enabled;
     }
 
     public function setWaitlistEnabled(bool $waitlist_enabled): self

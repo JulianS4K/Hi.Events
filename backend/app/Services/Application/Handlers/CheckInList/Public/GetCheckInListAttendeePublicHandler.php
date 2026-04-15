@@ -12,6 +12,7 @@ use HiEvents\Helper\DateHelper;
 use HiEvents\Repository\Eloquent\Value\Relationship;
 use HiEvents\Repository\Interfaces\AttendeeRepositoryInterface;
 use HiEvents\Repository\Interfaces\CheckInListRepositoryInterface;
+use HiEvents\Services\Domain\Attendee\QrTokenService;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 class GetCheckInListAttendeePublicHandler
@@ -19,8 +20,8 @@ class GetCheckInListAttendeePublicHandler
     public function __construct(
         private readonly AttendeeRepositoryInterface    $attendeeRepository,
         private readonly CheckInListRepositoryInterface $checkInListRepository,
-    )
-    {
+        private readonly QrTokenService                 $qrTokenService,
+    ) {
     }
 
     /**
@@ -41,10 +42,24 @@ class GetCheckInListAttendeePublicHandler
 
         $this->validateCheckInListIsActive($checkInList);
 
-        return $this->attendeeRepository->findFirstWhere([
-            'public_id' => $attendeePublicId,
-            'event_id' => $checkInList->getEventId(),
+        $resolvedPublicId = $this->qrTokenService->isRotatingToken($attendeePublicId)
+            ? $this->qrTokenService->validateToken($attendeePublicId)
+            : $attendeePublicId;
+
+        if ($resolvedPublicId === null) {
+            throw new CannotCheckInException(__('QR code has expired. Ask the attendee to refresh their ticket.'));
+        }
+
+        $attendee = $this->attendeeRepository->findFirstWhere([
+            'public_id' => $resolvedPublicId,
+            'event_id'  => $checkInList->getEventId(),
         ]);
+
+        if (!$attendee) {
+            throw new ResourceNotFoundException(__('Attendee not found'));
+        }
+
+        return $attendee;
     }
 
     /**

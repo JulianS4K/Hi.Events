@@ -21,6 +21,7 @@ abstract class AttendeeDomainObjectAbstract extends \HiEvents\DomainObjects\Abst
     final public const FIRST_NAME = 'first_name';
     final public const LAST_NAME = 'last_name';
     final public const EMAIL = 'email';
+    final public const PHONE = 'phone';
     final public const PUBLIC_ID = 'public_id';
     final public const STATUS = 'status';
     final public const CHECKED_IN_AT = 'checked_in_at';
@@ -41,6 +42,7 @@ abstract class AttendeeDomainObjectAbstract extends \HiEvents\DomainObjects\Abst
     protected string $first_name = '';
     protected string $last_name = '';
     protected string $email;
+    protected ?string $phone = null;
     protected string $public_id;
     protected string $status;
     protected ?string $checked_in_at = null;
@@ -64,6 +66,7 @@ abstract class AttendeeDomainObjectAbstract extends \HiEvents\DomainObjects\Abst
                     'first_name' => $this->first_name ?? null,
                     'last_name' => $this->last_name ?? null,
                     'email' => $this->email ?? null,
+                    'phone' => $this->phone ?? null,
                     'public_id' => $this->public_id ?? null,
                     'status' => $this->status ?? null,
                     'checked_in_at' => $this->checked_in_at ?? null,
@@ -194,6 +197,17 @@ abstract class AttendeeDomainObjectAbstract extends \HiEvents\DomainObjects\Abst
     public function getEmail(): string
     {
         return $this->email;
+    }
+
+    public function setPhone(?string $phone): self
+    {
+        $this->phone = $phone;
+        return $this;
+    }
+
+    public function getPhone(): ?string
+    {
+        return $this->phone;
     }
 
     public function setPublicId(string $public_id): self

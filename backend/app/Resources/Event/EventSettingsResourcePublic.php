@@ -85,6 +85,11 @@ class EventSettingsResourcePublic extends JsonResource
 
             // Self-service settings
             'allow_attendee_self_edit' => $this->getAllowAttendeeSelfEdit(),
+            'qr_rotation_enabled'      => $this->getQrRotationEnabled(),
+            'wallet_apple_enabled'     => (bool) config('services.apple_wallet.enabled')
+                && !empty(config('services.apple_wallet.certificate')),
+            'wallet_google_enabled'    => (bool) config('services.google_wallet.enabled')
+                && !empty(config('services.google_wallet.service_account_json')),
 
             // Waitlist settings
             'waitlist_auto_process' => $this->getWaitlistAutoProcess(),

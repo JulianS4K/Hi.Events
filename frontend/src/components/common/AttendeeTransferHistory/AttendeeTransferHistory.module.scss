@@ -1,0 +1,80 @@
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--mantine-color-default-border);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.iconCol {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--mantine-color-blue-0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--mantine-color-blue-6);
+  margin-top: 2px;
+}
+
+.body {
+  flex: 1;
+  min-width: 0;
+}
+
+.route {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 500;
+  color: var(--mantine-color-text);
+  line-height: 1.4;
+}
+
+.arrow {
+  color: var(--mantine-color-dimmed);
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.badge {
+  font-size: 10px;
+  font-weight: 500;
+  padding: 1px 6px;
+  border-radius: 20px;
+  background: var(--mantine-color-blue-1);
+  color: var(--mantine-color-blue-8);
+  flex-shrink: 0;
+
+  &[data-type='phone'] {
+    background: var(--mantine-color-violet-1);
+    color: var(--mantine-color-violet-8);
+  }
+}
+
+.meta {
+  font-size: var(--mantine-font-size-xs);
+  color: var(--mantine-color-dimmed);
+  margin-top: 2px;
+}
+
+.empty {
+  padding: 24px 16px;
+  text-align: center;
+  color: var(--mantine-color-dimmed);
+  font-size: var(--mantine-font-size-sm);
+}

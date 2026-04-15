@@ -10,6 +10,7 @@ import classes from './AttendeeTicket.module.scss';
 import {imageUrl} from "../../../utilites/urlHelper.ts";
 import {formatAddress} from "../../../utilites/addressUtilities.ts";
 import {PoweredByFooter} from "../PoweredByFooter";
+import {useQrToken} from "../../../hooks/useQrToken.ts";
 
 interface AttendeeTicketProps {
     event: Event;
@@ -40,6 +41,17 @@ export const AttendeeTicket = ({
 
     const isCancelled = attendee.status === 'CANCELLED';
     const isAwaitingPayment = attendee.status === 'AWAITING_PAYMENT';
+    const rotationEnabled = !!event?.settings?.qr_rotation_enabled;
+
+    const qrToken = useQrToken(
+        event?.id,
+        attendee.short_id,
+        rotationEnabled && !isCancelled && !isAwaitingPayment,
+    );
+
+    const qrValue = rotationEnabled && qrToken.token
+        ? qrToken.token
+        : String(attendee.public_id);
 
     // Generate a deterministic pattern based on attendee ID for consistency
     const generateQrPattern = () => {
@@ -155,12 +167,43 @@ export const AttendeeTicket = ({
                                 className={classes.qrContainer}
                                 style={{borderColor: accentColor}}
                             >
+                                {rotationEnabled && (
+                                    <div className={classes.qrCountdown}>
+                                        <svg viewBox="0 0 36 36" className={classes.qrCountdownRing}>
+                                            <circle
+                                                cx="18" cy="18" r="16"
+                                                fill="none"
+                                                stroke={accentColor}
+                                                strokeOpacity="0.15"
+                                                strokeWidth="2"
+                                            />
+                                            <circle
+                                                cx="18" cy="18" r="16"
+                                                fill="none"
+                                                stroke={accentColor}
+                                                strokeWidth="2"
+                                                strokeDasharray={`${(qrToken.secondsLeft / 30) * 100.5} 100.5`}
+                                                strokeLinecap="round"
+                                                transform="rotate(-90 18 18)"
+                                                style={{transition: 'stroke-dasharray 1s linear'}}
+                                            />
+                                        </svg>
+                                        <span className={classes.qrCountdownLabel}>
+                                            {qrToken.secondsLeft}s
+                                        </span>
+                                    </div>
+                                )}
                                 <QRCode
-                                    value={String(attendee.public_id)}
+                                    value={qrValue}
                                     size={180}
                                     level="M"
                                     style={{height: "auto", maxWidth: "100%", width: "100%"}}
                                 />
+                                {rotationEnabled && qrToken.isOffline && (
+                                    <div className={classes.qrOfflineWarning}>
+                                        {t`Offline — QR may be expired`}
+                                    </div>
+                                )}
                             </div>
                         )}
 
@@ -209,6 +252,44 @@ export const AttendeeTicket = ({
                                         </Button>
                                     )}
                                 </CopyButton>
+
+                                {event?.settings?.wallet_apple_enabled && (
+                                    <a
+                                        href={`/api/public/events/${event.id}/attendees/${attendee.short_id}/wallet/apple`}
+                                        className={classes.walletButton}
+                                        aria-label={t`Add to Apple Wallet`}
+                                    >
+                                        <img
+                                            src="https://apple.com/v/wallet/b/images/overview/add_to_apple_wallet_badge.svg"
+                                            alt={t`Add to Apple Wallet`}
+                                            height={40}
+                                            style={{display: 'block'}}
+                                        />
+                                    </a>
+                                )}
+
+                                {event?.settings?.wallet_google_enabled && (
+                                    <button
+                                        className={classes.walletButton}
+                                        onClick={async () => {
+                                            try {
+                                                const res = await fetch(`/api/public/events/${event.id}/attendees/${attendee.short_id}/wallet/google`);
+                                                const {url} = await res.json();
+                                                window?.open(url, '_blank');
+                                            } catch {
+                                                // silently fail — button shouldn't show if unconfigured
+                                            }
+                                        }}
+                                        aria-label={t`Save to Google Wallet`}
+                                    >
+                                        <img
+                                            src="https://pay.google.com/about/static/images/social/google-wallet-badge.svg"
+                                            alt={t`Save to Google Wallet`}
+                                            height={40}
+                                            style={{display: 'block'}}
+                                        />
+                                    </button>
+                                )}
                             </div>
                         )}
                     </div>

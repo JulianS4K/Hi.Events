@@ -1,5 +1,5 @@
 import {api} from "./client";
-import {Attendee, GenericDataResponse, GenericPaginatedResponse, IdParam, QueryFilters, TaxAndFee} from "../types";
+import {Attendee, GenericDataResponse, GenericPaginatedResponse, IdParam, QueryFilters, TaxAndFee, TicketTransfer} from "../types";
 import {queryParamsHelper} from "../utilites/queryParamsHelper.ts";
 import {publicApi} from "./public-client.ts";
 import {SupportedLocales} from "../locales.ts";
@@ -66,11 +66,23 @@ export const attendeesClient = {
     resendTicket: async (eventId: IdParam, attendeeId: IdParam) => {
         return await api.post(`events/${eventId}/attendees/${attendeeId}/resend-ticket`);
     },
+
+    getTransfers: async (eventId: IdParam, attendeeId: IdParam) => {
+        const response = await api.get<{ data: TicketTransfer[] }>(
+            `events/${eventId}/attendees/${attendeeId}/transfers`
+        );
+        return response.data;
+    },
 }
 
 export const attendeeClientPublic = {
     findByShortId: async (eventId: IdParam, attendeeShortId: string) => {
         const response = await publicApi.get<GenericDataResponse<Partial<Attendee>>>(`events/${eventId}/attendees/${attendeeShortId}`);
+        return response.data;
+    },
+
+    getQrToken: async (eventId: IdParam, attendeeShortId: string): Promise<{token: string; window: number; valid_until: number}> => {
+        const response = await publicApi.get(`events/${eventId}/attendees/${attendeeShortId}/qr-token`);
         return response.data;
     },
 }

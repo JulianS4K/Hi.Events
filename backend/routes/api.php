@@ -19,7 +19,11 @@ use HiEvents\Http\Actions\Attendees\EditAttendeeAction;
 use HiEvents\Http\Actions\Attendees\ExportAttendeesAction;
 use HiEvents\Http\Actions\Attendees\GetAttendeeAction;
 use HiEvents\Http\Actions\Attendees\GetAttendeeActionPublic;
+use HiEvents\Http\Actions\Attendees\GetAttendeeTransfersAction;
 use HiEvents\Http\Actions\Attendees\GetAttendeesAction;
+use HiEvents\Http\Actions\Attendees\GetGoogleWalletUrlAction;
+use HiEvents\Http\Actions\Attendees\DownloadAppleWalletPassAction;
+use HiEvents\Http\Actions\Attendees\GetQrTokenPublicAction;
 use HiEvents\Http\Actions\Attendees\PartialEditAttendeeAction;
 use HiEvents\Http\Actions\Attendees\ResendAttendeeTicketAction;
 use HiEvents\Http\Actions\Auth\AcceptInvitationAction;
@@ -106,6 +110,7 @@ use HiEvents\Http\Actions\SelfService\EditAttendeePublicAction;
 use HiEvents\Http\Actions\SelfService\EditOrderPublicAction;
 use HiEvents\Http\Actions\SelfService\ResendAttendeeTicketPublicAction;
 use HiEvents\Http\Actions\SelfService\ResendOrderConfirmationPublicAction;
+use HiEvents\Http\Actions\TicketTransfer\TransferTicketPublicAction;
 use HiEvents\Http\Actions\Organizers\EditOrganizerAction;
 use HiEvents\Http\Actions\Organizers\GetOrganizerAction;
 use HiEvents\Http\Actions\Organizers\GetOrganizerEventsAction;
@@ -349,6 +354,7 @@ $router->middleware(['auth:api'])->group(
         $router->post('/events/{event_id}/attendees', CreateAttendeeAction::class);
         $router->get('/events/{event_id}/attendees', GetAttendeesAction::class);
         $router->get('/events/{event_id}/attendees/{attendee_id}', GetAttendeeAction::class);
+        $router->get('/events/{event_id}/attendees/{attendee_id}/transfers', GetAttendeeTransfersAction::class);
         $router->put('/events/{event_id}/attendees/{attendee_id}', EditAttendeeAction::class);
         $router->patch('/events/{event_id}/attendees/{attendee_id}', PartialEditAttendeeAction::class);
         $router->post('/events/{event_id}/attendees/export', ExportAttendeesAction::class);
@@ -513,6 +519,9 @@ $router->prefix('/public')->group(
 
         // Attendees
         $router->get('/events/{event_id}/attendees/{attendee_short_id}', GetAttendeeActionPublic::class);
+        $router->get('/events/{event_id}/attendees/{attendee_short_id}/qr-token', GetQrTokenPublicAction::class)->middleware('throttle:120,1');
+        $router->get('/events/{event_id}/attendees/{attendee_short_id}/wallet/apple', DownloadAppleWalletPassAction::class)->middleware('throttle:30,1');
+        $router->get('/events/{event_id}/attendees/{attendee_short_id}/wallet/google', GetGoogleWalletUrlAction::class)->middleware('throttle:30,1');
 
         // Waitlist
         $router->post('/events/{event_id}/waitlist', CreateWaitlistEntryActionPublic::class)
@@ -554,6 +563,7 @@ $router->prefix('/public')->group(
 
             $router->patch('/attendees/{attendee_short_id}', EditAttendeePublicAction::class)->middleware('throttle:self-service-edit');
             $router->post('/attendees/{attendee_short_id}/resend-ticket', ResendAttendeeTicketPublicAction::class)->middleware('throttle:self-service-email');
+            $router->post('/attendees/{attendee_short_id}/transfer', TransferTicketPublicAction::class)->middleware('throttle:self-service-edit');
         });
 
         // Sitemap

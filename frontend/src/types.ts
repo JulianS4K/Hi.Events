@@ -248,6 +248,9 @@ export interface EventSettings {
 
     // Self-service settings
     allow_attendee_self_edit?: boolean;
+    qr_rotation_enabled?: boolean;
+    wallet_apple_enabled?: boolean;
+    wallet_google_enabled?: boolean;
 
     // Simplified homepage theme settings (new 2-color + mode system)
     homepage_theme_settings?: HomepageThemeSettings;
@@ -544,8 +547,17 @@ export interface Product {
     is_highlighted?: boolean;
     highlight_message?: string;
     waitlist_enabled?: boolean | null;
+    is_transferable?: boolean;
     has_waiting_entries?: boolean;
     waitlist_entry_count?: number;
+}
+
+export interface TicketTransfer {
+    id: number;
+    from_email: string;
+    to_identifier: string;
+    to_identifier_type: 'email' | 'phone';
+    transferred_at: string;
 }
 
 export interface ProductCategory {

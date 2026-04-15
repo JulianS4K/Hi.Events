@@ -52,4 +52,24 @@ return [
     'open_exchange_rates' => [
         'app_id' => env('OPEN_EXCHANGE_RATES_APP_ID'),
     ],
+
+    'apple_wallet' => [
+        'enabled'       => env('APPLE_WALLET_ENABLED', false),
+        'team_id'       => env('APPLE_WALLET_TEAM_ID'),
+        'pass_type_id'  => env('APPLE_WALLET_PASS_TYPE_ID'),
+        // PEM-encoded certificate and private key (base64 the file contents for env storage)
+        'certificate'   => env('APPLE_WALLET_CERTIFICATE'),
+        'private_key'   => env('APPLE_WALLET_PRIVATE_KEY'),
+        'private_key_password' => env('APPLE_WALLET_PRIVATE_KEY_PASSWORD', ''),
+        // Download from https://www.apple.com/certificateauthority/
+        'wwdr_certificate' => env('APPLE_WALLET_WWDR_CERTIFICATE'),
+    ],
+
+    'google_wallet' => [
+        'enabled'    => env('GOOGLE_WALLET_ENABLED', false),
+        'issuer_id'  => env('GOOGLE_WALLET_ISSUER_ID'),
+        // Full JSON contents of your Google Cloud service account key file
+        'service_account_json' => env('GOOGLE_WALLET_SERVICE_ACCOUNT_JSON'),
+    ],
 ];
+// Appending wallet config — will be added inside the return array manually

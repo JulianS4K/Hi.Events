@@ -23,6 +23,7 @@ export const MiscSettings = () => {
             price_display_mode: 'EXCLUSIVE',
             hide_getting_started_page: false,
             allow_attendee_self_edit: false,
+            qr_rotation_enabled: false,
         }
     });
     const formErrorHandle = useFormErrorResponseHandler();
@@ -33,6 +34,7 @@ export const MiscSettings = () => {
                 price_display_mode: eventSettingsQuery.data.price_display_mode,
                 hide_getting_started_page: eventSettingsQuery.data.hide_getting_started_page,
                 allow_attendee_self_edit: eventSettingsQuery.data.allow_attendee_self_edit ?? false,
+                qr_rotation_enabled: eventSettingsQuery.data.qr_rotation_enabled ?? false,
             });
         }
     }, [eventSettingsQuery.isFetched]);
@@ -96,6 +98,12 @@ export const MiscSettings = () => {
                     <SelfServiceSettings
                         value={form.values.allow_attendee_self_edit}
                         onChange={(value) => form.setFieldValue('allow_attendee_self_edit', value)}
+                    />
+
+                    <Switch
+                        {...form.getInputProps('qr_rotation_enabled', {type: 'checkbox'})}
+                        label={t`Enable rotating QR codes`}
+                        description={t`QR codes refresh every 30 seconds. Screenshots become invalid after transfer or expiry. Attendees need an internet connection to view their ticket.`}
                     />
 
                     <Button loading={updateMutation.isPending} type={'submit'}>

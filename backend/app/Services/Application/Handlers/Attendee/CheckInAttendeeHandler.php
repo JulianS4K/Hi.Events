@@ -11,6 +11,7 @@ use HiEvents\Exceptions\CannotCheckInException;
 use HiEvents\Repository\Interfaces\AttendeeRepositoryInterface;
 use HiEvents\Repository\Interfaces\UserRepositoryInterface;
 use HiEvents\Services\Application\Handlers\Attendee\DTO\CheckInAttendeeDTO;
+use HiEvents\Services\Domain\Attendee\QrTokenService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
@@ -20,8 +21,8 @@ class CheckInAttendeeHandler
         private readonly AttendeeRepositoryInterface $attendeeRepository,
         private readonly UserRepositoryInterface     $userRepository,
         private readonly LoggerInterface             $logger,
-    )
-    {
+        private readonly QrTokenService              $qrTokenService,
+    ) {
     }
 
     /**
@@ -30,6 +31,20 @@ class CheckInAttendeeHandler
      */
     public function handle(CheckInAttendeeDTO $checkInAttendeeDTO): AttendeeDomainObject
     {
+        $publicId = $this->resolvePublicId(
+            $checkInAttendeeDTO->attendee_public_id,
+            $checkInAttendeeDTO->event_id,
+        );
+
+        if ($publicId !== $checkInAttendeeDTO->attendee_public_id) {
+            $checkInAttendeeDTO = new CheckInAttendeeDTO(
+                attendee_public_id:     $publicId,
+                event_id:               $checkInAttendeeDTO->event_id,
+                action:                 $checkInAttendeeDTO->action,
+                checked_in_by_user_id:  $checkInAttendeeDTO->checked_in_by_user_id,
+            );
+        }
+
         $attendee = $this->fetchAttendee($checkInAttendeeDTO);
 
         $this->validateAttendeeStatus($attendee);
@@ -38,6 +53,27 @@ class CheckInAttendeeHandler
         $this->updateCheckInStatus($checkInAttendeeDTO);
 
         return $this->fetchAttendee($checkInAttendeeDTO);
+    }
+
+    /**
+     * Accepts either a raw public_id or a rotating HMAC token.
+     * Returns the resolved public_id in both cases.
+     *
+     * @throws CannotCheckInException
+     */
+    private function resolvePublicId(string $value, int $eventId): string
+    {
+        if (!$this->qrTokenService->isRotatingToken($value)) {
+            return $value;
+        }
+
+        $publicId = $this->qrTokenService->validateToken($value);
+
+        if ($publicId === null) {
+            throw new CannotCheckInException(__('QR code has expired. Ask the attendee to refresh their ticket.'));
+        }
+
+        return $publicId;
     }
 
     private function fetchAttendee(CheckInAttendeeDTO $checkInAttendeeDTO): AttendeeDomainObject

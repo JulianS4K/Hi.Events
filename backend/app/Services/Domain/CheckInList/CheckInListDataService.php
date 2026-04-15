@@ -11,6 +11,7 @@ use HiEvents\DomainObjects\ProductDomainObject;
 use HiEvents\Exceptions\CannotCheckInException;
 use HiEvents\Repository\Interfaces\AttendeeRepositoryInterface;
 use HiEvents\Repository\Interfaces\CheckInListRepositoryInterface;
+use HiEvents\Services\Domain\Attendee\QrTokenService;
 use Illuminate\Support\Collection;
 
 class CheckInListDataService
@@ -18,8 +19,8 @@ class CheckInListDataService
     public function __construct(
         private readonly CheckInListRepositoryInterface $checkInListRepository,
         private readonly AttendeeRepositoryInterface    $attendeeRepository,
-    )
-    {
+        private readonly QrTokenService                 $qrTokenService,
+    ) {
     }
 
     /**
@@ -51,15 +52,29 @@ class CheckInListDataService
     {
         $attendeePublicIds = array_unique($attendeePublicIds->toArray());
 
+        // Resolve any rotating HMAC tokens to their underlying public_ids
+        $resolvedIds = [];
+        foreach ($attendeePublicIds as $value) {
+            if ($this->qrTokenService->isRotatingToken($value)) {
+                $publicId = $this->qrTokenService->validateToken($value);
+                if ($publicId === null) {
+                    throw new CannotCheckInException(__('QR code has expired. Ask the attendee to refresh their ticket.'));
+                }
+                $resolvedIds[] = $publicId;
+            } else {
+                $resolvedIds[] = $value;
+            }
+        }
+
         $attendees = $this->attendeeRepository->findWhereIn(
             field: AttendeeDomainObjectAbstract::PUBLIC_ID,
-            values: $attendeePublicIds
+            values: $resolvedIds,
         );
 
-        if (count($attendees) !== count($attendeePublicIds)) {
+        if (count($attendees) !== count($resolvedIds)) {
             throw new CannotCheckInException(__('Invalid attendee code detected: :attendees ', [
                 'attendees' => implode(', ', array_diff(
-                        $attendeePublicIds,
+                        $resolvedIds,
                         $attendees->pluck(AttendeeDomainObjectAbstract::PUBLIC_ID)->toArray())
                 ),
             ]));

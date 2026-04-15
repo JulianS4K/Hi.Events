@@ -83,6 +83,7 @@ class UpdateEventSettingsDTO extends BaseDTO
 
         // Self-service settings
         public readonly bool                    $allow_attendee_self_edit = false,
+        public readonly bool                    $qr_rotation_enabled = false,
 
         // Waitlist settings
         public readonly ?bool                   $waitlist_auto_process = null,

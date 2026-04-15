@@ -16,6 +16,15 @@ export interface EditAttendeeData {
     email?: string;
 }
 
+export interface TransferTicketData {
+    to_identifier: string;
+    to_identifier_type: 'email' | 'phone';
+}
+
+export interface TransferTicketResult {
+    message: string;
+}
+
 export interface EditOrderData {
     first_name?: string;
     last_name?: string;
@@ -65,6 +74,19 @@ export const selfServiceClient = {
     ): Promise<{ success: boolean; message: string }> => {
         const response = await publicApi.post(
             `/events/${eventId}/order/${orderShortId}/resend-confirmation`
+        );
+        return response.data;
+    },
+
+    transferTicket: async (
+        eventId: IdParam,
+        orderShortId: string,
+        attendeeShortId: string,
+        data: TransferTicketData
+    ): Promise<TransferTicketResult> => {
+        const response = await publicApi.post(
+            `/events/${eventId}/order/${orderShortId}/attendees/${attendeeShortId}/transfer`,
+            data
         );
         return response.data;
     },

@@ -47,6 +47,7 @@ use HiEvents\Repository\Eloquent\StripePaymentsRepository;
 use HiEvents\Repository\Eloquent\StripePayoutsRepository;
 use HiEvents\Repository\Eloquent\TaxAndFeeRepository;
 use HiEvents\Repository\Eloquent\TicketLookupTokenRepository;
+use HiEvents\Repository\Eloquent\TicketTransferRepository;
 use HiEvents\Repository\Eloquent\UserRepository;
 use HiEvents\Repository\Eloquent\WaitlistEntryRepository;
 use HiEvents\Repository\Eloquent\WebhookLogRepository;
@@ -94,6 +95,7 @@ use HiEvents\Repository\Interfaces\StripePaymentsRepositoryInterface;
 use HiEvents\Repository\Interfaces\StripePayoutsRepositoryInterface;
 use HiEvents\Repository\Interfaces\TaxAndFeeRepositoryInterface;
 use HiEvents\Repository\Interfaces\TicketLookupTokenRepositoryInterface;
+use HiEvents\Repository\Interfaces\TicketTransferRepositoryInterface;
 use HiEvents\Repository\Interfaces\UserRepositoryInterface;
 use HiEvents\Repository\Interfaces\WaitlistEntryRepositoryInterface;
 use HiEvents\Repository\Interfaces\WebhookLogRepositoryInterface;
@@ -151,6 +153,7 @@ class RepositoryServiceProvider extends ServiceProvider
         AccountStripePlatformRepositoryInterface::class => AccountStripePlatformRepository::class,
         AccountVatSettingRepositoryInterface::class => AccountVatSettingRepository::class,
         TicketLookupTokenRepositoryInterface::class => TicketLookupTokenRepository::class,
+        TicketTransferRepositoryInterface::class => TicketTransferRepository::class,
         AccountMessagingTierRepositoryInterface::class => AccountMessagingTierRepository::class,
         WaitlistEntryRepositoryInterface::class => WaitlistEntryRepository::class,
     ];

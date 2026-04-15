@@ -1,5 +1,6 @@
 import {useParams} from "react-router";
 import {useGetAttendee} from "../../../queries/useGetAttendee.ts";
+import {useGetAttendeeTransfers} from "../../../queries/useGetAttendeeTransfers.ts";
 import {useGetEvent} from "../../../queries/useGetEvent.ts";
 import {useGetOrder} from "../../../queries/useGetOrder.ts";
 import {useUpdateAttendee} from "../../../mutations/useUpdateAttendee.ts";
@@ -8,12 +9,13 @@ import {useForm} from "@mantine/form";
 import {Accordion} from "../../common/Accordion";
 import {Button} from "../../common/Button";
 import {Avatar, Box, Group, Stack, Tabs, Text, Textarea, TextInput} from "@mantine/core";
-import {IconEdit, IconNotebook, IconQuestionMark, IconReceipt, IconTicket, IconUser} from "@tabler/icons-react";
+import {IconEdit, IconNotebook, IconQuestionMark, IconReceipt, IconSwitch2, IconTicket, IconUser} from "@tabler/icons-react";
 import {LoadingMask} from "../../common/LoadingMask";
 import {AttendeeDetails} from "../../common/AttendeeDetails";
 import {OrderDetails} from "../../common/OrderDetails";
 import {QuestionList} from "../../common/QuestionAndAnswerList";
 import {AttendeeTicket} from "../../common/AttendeeTicket";
+import {AttendeeTransferHistory} from "../../common/AttendeeTransferHistory";
 import {getInitials} from "../../../utilites/helpers.ts";
 import {t} from "@lingui/macro";
 import classes from './ManageAttendeeModal.module.scss';
@@ -37,6 +39,7 @@ export const ManageAttendeeModal = ({onClose, attendeeId}: ManageAttendeeModalPr
     const {data: attendee, refetch: refetchAttendee} = useGetAttendee(eventId, attendeeId);
     const {data: order} = useGetOrder(eventId, attendee?.order_id);
     const {data: event} = useGetEvent(eventId);
+    const {data: transfers} = useGetAttendeeTransfers(eventId, attendeeId);
     const errorHandler = useFormErrorResponseHandler();
     const mutation = useUpdateAttendee();
 
@@ -193,6 +196,14 @@ export const ManageAttendeeModal = ({onClose, attendeeId}: ManageAttendeeModalPr
                             {t`No questions answered by this attendee.`}
                         </Text>
                     ),
+                },
+                {
+                    value: "transfers",
+                    icon: IconSwitch2,
+                    title: t`Transfer History`,
+                    count: transfers && transfers.length > 0 ? transfers.length : undefined,
+                    hidden: !transfers || transfers.length === 0,
+                    content: <AttendeeTransferHistory attendeeId={attendeeId}/>,
                 },
             ].filter(item => !item.hidden)}
             defaultValue="details"
